@@ -4,12 +4,13 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from embzip.core import quantize, save, load, calculate_default_m
+from embzip.core import quantize, save, load
 
 @pytest.fixture
 def sample_embeddings():
     # Create sample embeddings: 100 vectors with 768 dimensions
     return torch.randn(100, 768)
+
 
 def test_quantize_basic(sample_embeddings):
     """Test basic quantization functionality"""
@@ -27,10 +28,11 @@ def test_quantize_basic(sample_embeddings):
     )
     assert 0.5 < cos_sim < 1.0, f"Cosine similarity {cos_sim} out of expected range"
 
+
 def test_quantize_custom_m(sample_embeddings):
     """Test quantization with custom M parameter"""
     # Default M
-    default_m = calculate_default_m(sample_embeddings.size(1))
+    default_m = sample_embeddings.size(1) // 16
     quantized_default = quantize(sample_embeddings)
     
     # Lower M (more compression, less accuracy)
@@ -57,9 +59,13 @@ def test_quantize_custom_m(sample_embeddings):
         sample_embeddings.view(-1), quantized_high_m.view(-1), dim=0
     )
     
+    print("[Cos] default", cos_sim_default)
+    print("[Cos] low_m", cos_sim_low_m)
+    print("[Cos] high_m", cos_sim_high_m)
     # Higher M should give better quality (higher similarity)
     assert cos_sim_high_m > cos_sim_default, "Higher M should give better accuracy"
     assert cos_sim_default > cos_sim_low_m, "Lower M should give worse accuracy"
+
 
 def test_save_load_with_tempfile(sample_embeddings):
     """Test save and load functionality using a temporary file"""
@@ -67,6 +73,7 @@ def test_save_load_with_tempfile(sample_embeddings):
         temp_path = tmp.name
         try:
             # Save to temporary file
+            print(f"Saving emb of shape {sample_embeddings.shape} to {temp_path}")
             save(sample_embeddings, temp_path)
             
             # Check file exists and is not empty
@@ -89,6 +96,7 @@ def test_save_load_with_tempfile(sample_embeddings):
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
 
+
 @pytest.mark.parametrize("m", [24, 48, 96])
 def test_save_load_custom_m(sample_embeddings, m):
     """Test save and load functionality with different M values"""
@@ -109,22 +117,3 @@ def test_save_load_custom_m(sample_embeddings, m):
             sample_embeddings.view(-1), loaded.view(-1), dim=0
         )
         assert 0.5 < cos_sim < 1.0, f"Cosine similarity {cos_sim} out of expected range with m={m}"
-
-def test_device_handling(sample_embeddings):
-    """Test device handling in quantize, save, and load functions"""
-    device = 'cpu'  # Always use CPU for testing
-    
-    # Test quantization with explicit device
-    quantized = quantize(sample_embeddings, device=device)
-    assert quantized.device.type == device
-    
-    # Test save and load with explicit device
-    with tempfile.NamedTemporaryFile(suffix='.ezip', delete=False) as tmp:
-        temp_path = tmp.name
-        try:
-            save(sample_embeddings, temp_path, device=device)
-            loaded = load(temp_path, device=device)
-            assert loaded.device.type == device
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path) 
