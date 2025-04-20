@@ -1,4 +1,4 @@
-# EmbZip
+# embzip 🗜️
 
 A Python package for efficiently compressing and decompressing embeddings using Product Quantization.
 
