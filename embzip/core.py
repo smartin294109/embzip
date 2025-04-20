@@ -22,7 +22,8 @@ def quantize(embeddings: torch.Tensor, m: Optional[int] = None, nbits: int = 4) 
     """ 
     d = embeddings.size(1)
     if m is None:
-        m = d // 16
+        print(f"[embzip] m not provided, defaulting to d // 4 = {d // 4}")
+        m = d // 4
         
     index = faiss.index_factory(
         d, f"IDMap2,PQ{m}x{nbits}", faiss.METRIC_INNER_PRODUCT
@@ -49,7 +50,8 @@ def save(embeddings: torch.Tensor, path: str, m: Optional[int] = None, nbits: in
     
     d = embeddings.size(1)
     if m is None:
-        m = d // 16
+        print(f"[embzip] m not provided, defaulting to d // 4 = {d // 4}")
+        m = d // 4
     
     # Create and train the index
     index = faiss.index_factory(

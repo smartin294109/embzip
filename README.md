@@ -42,6 +42,11 @@ import embzip
 # Create sample embeddings
 embeddings = torch.randn(1000, 768)  # 1000 vectors with 768 dimensions
 
+# Note: You probably don't want to use random vectors, because they 
+# won't compress well (e.g. you'll either get little savings in space 
+# or bad cosine similarity). You should use real embeddings, such as
+# those from a sentence-transformers model.
+
 # Save embeddings to a file with default parameters
 embzip.save(embeddings, "embeddings.ezip")
 

@@ -2,12 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name="embzip",
-    version="0.1.0",
+    version="0.2.0",
     packages=find_packages(),
     install_requires=[
-        "torch>=1.0.0",
-        "faiss-cpu>=1.7.0; platform_system!='Darwin' or platform_machine!='arm64'",
-        "faiss-cpu-noavx2>=1.7.0; platform_system=='Darwin' and platform_machine=='arm64'",
+        "torch",
+        "faiss-cpu",
     ],
     description="A tool for compressing and decompressing embeddings using Product Quantization",
     author="embzip",
