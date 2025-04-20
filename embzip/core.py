@@ -1,5 +1,7 @@
 from typing import Optional
 
+import lzma
+
 import torch
 import faiss
 import os
@@ -32,7 +34,7 @@ def quantize(embeddings: torch.Tensor, m: Optional[int] = None, nbits: int = 4) 
     return torch.tensor(index.index.sa_decode(code))
 
 
-def save(embeddings: torch.Tensor, path: str, m: int = None, nbits: int = 4) -> None:
+def save(embeddings: torch.Tensor, path: str, m: Optional[int] = None, nbits: int = 4) -> None:
     """
     Compress and save embeddings to a file.
     
@@ -73,7 +75,7 @@ def save(embeddings: torch.Tensor, path: str, m: int = None, nbits: int = 4) -> 
         'nbits': nbits
     }
     
-    with open(path, 'wb') as f:
+    with lzma.open(path, 'wb') as f:
         pickle.dump(data, f)
 
 def load(path: str) -> torch.Tensor:
@@ -86,7 +88,7 @@ def load(path: str) -> torch.Tensor:
     Returns:
         Reconstructed embeddings tensor
     """
-    with open(path, 'rb') as f:
+    with lzma.open(path, 'rb') as f:
         data = pickle.load(f)
     
     codes = data['codes']

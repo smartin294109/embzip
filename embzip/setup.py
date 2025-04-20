@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="embzip",
-    version="0.1.0",
+    version="0.2.0",
     packages=find_packages(),
     install_requires=[
         "torch>=1.0.0",
@@ -11,8 +11,9 @@ setup(
     ],
     extras_require={
         "dev": [
-            "pytest>=7.0.0",
-            "pytest-cov>=4.0.0",
+            "faker",
+            "pytest",
+            "sentence-transformers",
         ],
     },
     description="A tool for compressing and decompressing embeddings using Product Quantization",
