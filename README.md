@@ -66,6 +66,36 @@ Product Quantization works by splitting each embedding vector into M equal sub-v
 
 For a 768-dimension vector, the default M would be 48, which tends to provide a reasonable balance between compression and accuracy for most applications.
 
+## Benchmarks
+
+Here are some example benchmarking numbers for 1000 text embeddings embedded using [`all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
+
+```bash
+====================================================================================================
+Model: all-MiniLM-L6-v2 | n: 1000 | m: 64
+Original size: 1536000 bytes
+Compressed size: 56372 bytes
+Compression ratio: 27.25
+Cosine similarity: 0.7882668375968933
+====================================================================================================
+
+====================================================================================================
+Model: all-MiniLM-L6-v2 | n: 1000 | m: 128
+Original size: 1536000 bytes
+Compressed size: 87920 bytes
+Compression ratio: 17.47
+Cosine similarity: 0.9056953191757202
+====================================================================================================
+
+====================================================================================================
+Model: all-MiniLM-L6-v2 | n: 1000 | m: 384
+Original size: 1536000 bytes
+Compressed size: 216112 bytes
+Compression ratio: 7.11
+Cosine similarity: 0.9953747391700745
+====================================================================================================
+```
+
 ## Requirements
 
 - Python 3.6+
